@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_trip/utils.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
@@ -17,6 +18,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String showResult = '';
 
+  /// Future是异步的。借助async/await将异步转换为同步
   Future<CommonModel> fetchPost() async {
     // https://www.geekailab.com/io/flutter_app/json/test_common_model.json
     final httpUri = Uri(scheme: 'http', host: 'www.devio.org', path: 'io/flutter_app/json/test_common_model.json');
@@ -36,10 +38,13 @@ class _MyAppState extends State<MyApp> {
           children: [
             InkWell(
               onTap: () {
+                // Future中then/catchError/whenComplete，类比Java try-catch-finally，及Kotlin Flow中collect/catch/onCompletion
                 fetchPost().then((CommonModel value) {
                   setState(() {
                     showResult = '请求结果: \nicon: ${value.icon}\ntitle: ${value.title}\nurl: ${value.url}\nstatusBarColor: ${value.statusBarColor}\nhideAppBar: ${value.hideAppBar}';
                   });
+                }).catchError(printDebug).whenComplete(() {
+                  printDebug('done!');
                 });
               },
               child: const Text(
