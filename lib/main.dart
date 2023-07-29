@@ -1,7 +1,5 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,16 +13,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String showResult = '';
-
-  /// Future是异步的。借助async/await将异步转换为同步
-  Future<CommonModel> fetchPost() async {
-    // https://www.geekailab.com/io/flutter_app/json/test_common_model.json
-    final httpUri = Uri(scheme: 'http', host: 'www.devio.org', path: 'io/flutter_app/json/test_common_model.json');
-    final response = await http.get(httpUri);
-    final result = json.decode(const Utf8Decoder().convert(response.bodyBytes));
-    return CommonModel.fromJson(result);
-  }
+  String countString = '';
+  String localCount = '';
 
   @override
   Widget build(BuildContext context) {
@@ -33,51 +23,43 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Future和FutureBuilder实用技巧'),
         ),
-        body: FutureBuilder<CommonModel>(
-          future: fetchPost(),
-          builder: (context,snapshot) {
-            switch(snapshot.connectionState) {
-              case ConnectionState.none:
-                return const Text('Input a URL to start');
-              case ConnectionState.waiting:
-                return const Center(child: CircularProgressIndicator(),);
-              case ConnectionState.active:
-                return const Text('');
-              case ConnectionState.done:
-                if (snapshot.hasError) {
-                  return Text('${snapshot.error}', style: const TextStyle(color: Colors.red),);
-                } else {
-                  return Column(children: [
-                    Text('icon: ${snapshot.data?.icon}'),
-                    Text('title: ${snapshot.data?.title}'),
-                    Text('url: ${snapshot.data?.url}'),
-                    Text('statusBarColor: ${snapshot.data?.statusBarColor}'),
-                    Text('hideAppBar: ${snapshot.data?.hideAppBar}')
-                  ],);
-                }
-            }
-          },
-        ),
+        body: Column(
+          children: [
+            ElevatedButton(
+              onPressed: _incrementCounter,
+              child: const Text('Increment Counter'),
+            ),
+            ElevatedButton(
+              onPressed: _getCounter,
+              child: const Text('Get Counter'),
+            ),
+            Text(
+              countString,
+              style: const TextStyle(fontSize: 20),
+            ),
+            Text(
+              localCount,
+              style: const TextStyle(fontSize: 20),
+            ),
+          ],
+        )
       ),
     );
   }
-}
 
-class CommonModel {
-  final String? icon;
-  final String? title;
-  final String? url;
-  final String? statusBarColor;
-  final bool? hideAppBar;
+  _incrementCounter() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      countString = '$countString 1';
+    });
+    int counter = (prefs.getInt('counter')??0) + 1;
+    await prefs.setInt('counter', counter);
+  }
 
-  CommonModel({this.icon, this.title, this.url, this.statusBarColor, this.hideAppBar});
-  factory CommonModel.fromJson(Map<String,dynamic> map) {
-    return CommonModel(
-      icon: map['icon'],
-      title: map['title'],
-      url: map['url'],
-      statusBarColor: map['statusBarColor'],
-      hideAppBar: map['hideAppBar'],
-    );
+  _getCounter() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      localCount = (prefs.getInt('counter')??0).toString();
+    });
   }
 }
