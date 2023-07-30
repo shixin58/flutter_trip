@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+const cityNames = ['北京', '上海', '广州', '深圳', '重庆', '武汉', '杭州', '西安', '郑州', '南京', '厦门', '大连'];
 
 void main() {
   runApp(const MyApp());
@@ -21,45 +22,40 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Future和FutureBuilder实用技巧'),
+          title: const Text('ListView实现水平和垂直滚动的列表',),
         ),
-        body: Column(
-          children: [
-            ElevatedButton(
-              onPressed: _incrementCounter,
-              child: const Text('Increment Counter'),
-            ),
-            ElevatedButton(
-              onPressed: _getCounter,
-              child: const Text('Get Counter'),
-            ),
-            Text(
-              countString,
-              style: const TextStyle(fontSize: 20),
-            ),
-            Text(
-              localCount,
-              style: const TextStyle(fontSize: 20),
-            ),
-          ],
+        body: SizedBox(
+          height: 200,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: _buildList(),
+          ),
         )
       ),
     );
   }
 
-  _incrementCounter() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      countString = '$countString 1';
-    });
-    int counter = (prefs.getInt('counter')??0) + 1;
-    await prefs.setInt('counter', counter);
+  List<Widget> _buildList() {
+    return cityNames.map((city) => _item(city)).toList();
   }
 
-  _getCounter() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      localCount = (prefs.getInt('counter')??0).toString();
-    });
+  // Widget _item(city) {
+  //   return Container(
+  //     height: 80,
+  //     margin: const EdgeInsets.only(bottom: 5),
+  //     alignment: Alignment.center,
+  //     decoration: const BoxDecoration(color: Colors.teal),
+  //     child: Text(city, style: const TextStyle(color: Colors.white, fontSize: 20),),
+  //   );
+  // }
+
+  Widget _item(city) {
+    return Container(
+      width: 160,
+      margin: const EdgeInsets.only(right: 5),
+      alignment: Alignment.center,
+      decoration: const BoxDecoration(color: Colors.teal),
+      child: Text(city, style: const TextStyle(color: Colors.white, fontSize: 20),),
+    );
   }
 }
