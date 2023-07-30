@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 
-const cityNames = ['北京', '上海', '广州', '深圳', '重庆', '武汉', '杭州', '西安', '郑州', '南京', '厦门', '大连'];
+const cityNames = {
+  '北京': ['东城区', '西城区', '朝阳区', '丰台区', '石景山区', '海淀区', '顺义区'],
+  '上海': ['黄浦区', '徐汇区', '长宁区', '静安区', '普陀区', '闸北区', '虹口区'],
+  '广州': ['越秀', '海珠', '荔湾', '天河', '白云', '黄埔', '南沙', '番禺'],
+  '深圳': ['南山', '福田', '罗湖', '盐田', '龙岗', '宝安', '龙华'],
+  '杭州': ['上城区', '下城区', '江干区', '拱墅区', '西湖区', '滨江区'],
+  '苏州': ['姑苏区', '吴中区', '相城区', '高新区', '虎丘区', '工业园区', '吴江区']
+};
 
 void main() {
   runApp(const MyApp());
@@ -22,40 +29,40 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('ListView实现水平和垂直滚动的列表',),
+          title: const Text('ExpansionTile实现可展开的列表',),
         ),
-        body: SizedBox(
-          height: 200,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: _buildList(),
-          ),
-        )
+        body: ListView(
+          children: _buildList(),
+        ),
       ),
     );
   }
 
   List<Widget> _buildList() {
-    return cityNames.map((city) => _item(city)).toList();
+    List<Widget> widgets = [];
+    for (var city in cityNames.keys) {
+      widgets.add(_item(city, cityNames[city]!));
+    }
+    return widgets;
   }
 
-  // Widget _item(city) {
-  //   return Container(
-  //     height: 80,
-  //     margin: const EdgeInsets.only(bottom: 5),
-  //     alignment: Alignment.center,
-  //     decoration: const BoxDecoration(color: Colors.teal),
-  //     child: Text(city, style: const TextStyle(color: Colors.white, fontSize: 20),),
-  //   );
-  // }
+  Widget _item(String city, List<String> subCities) {
+    return ExpansionTile(
+      title: Text(city,style: const TextStyle(color: Colors.black54,fontSize: 20),),
+      children: subCities.map((subCity) => _buildSub(subCity)).toList(),
+    );
+  }
 
-  Widget _item(city) {
-    return Container(
-      width: 160,
-      margin: const EdgeInsets.only(right: 5),
-      alignment: Alignment.center,
-      decoration: const BoxDecoration(color: Colors.teal),
-      child: Text(city, style: const TextStyle(color: Colors.white, fontSize: 20),),
+  Widget _buildSub(String subCity) {
+    return FractionallySizedBox(
+      widthFactor: 1.0,
+      child: Container(
+        height: 50,
+        margin: const EdgeInsets.only(bottom: 5),
+        decoration: const BoxDecoration(color: Colors.teal),
+        alignment: Alignment.center,
+        child: Text(subCity),
+      ),
     );
   }
 }
