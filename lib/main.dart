@@ -14,24 +14,61 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  List<String> cities = List.from(cityNames);
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    _scrollController.addListener(() {
+      if(_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+        _loadData();
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  _loadData() async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    setState(() {
+      List<String> list = List.from(cities);
+      list.addAll(cityNames);
+      cities = list;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('网格布局',),
+          title: const Text('列表下拉刷新和上拉加载更多',),
         ),
-        body: GridView.count(
-          crossAxisCount: 2,
-          children: _buildList(),
+        body: RefreshIndicator(
+          onRefresh: _handleRefresh,
+          child: ListView(
+            controller: _scrollController,
+            children: _buildList(),
+          ),
         )
       ),
     );
   }
 
+  Future<void> _handleRefresh() async {
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() {
+      cities = cities.reversed.toList();
+    });
+  }
+
   List<Widget> _buildList() {
-    return cityNames.map((city) => _item(city)).toList();
+    return cities.map((city) => _item(city)).toList();
   }
 
   Widget _item(String city) {
